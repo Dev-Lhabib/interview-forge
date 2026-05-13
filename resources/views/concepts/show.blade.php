@@ -29,6 +29,14 @@
 
 <h2>Questions générées</h2>
 
+<form method="POST" action="{{ route('questions.generate', $concept) }}">
+    @csrf
+    <button type="submit">Générer des questions d'entretien</button>
+</form>
+@error('api')
+    <p style="color: red;">{{ $message }}</p>
+@enderror
+
 @forelse ($concept->generatedQuestions as $gen)
     <div style="border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem;">
         <p><strong>{{ $gen->created_at->format('d/m/Y H:i') }}</strong></p>
@@ -37,6 +45,11 @@
                 <li>{{ $question }}</li>
             @endforeach
         </ul>
+        <form method="POST" action="{{ route('questions.destroy', $gen) }}" style="display: inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" onclick="return confirm('Supprimer cette génération ?')">Supprimer</button>
+        </form>
     </div>
 @empty
     <p>Aucune question générée pour ce concept.</p>
