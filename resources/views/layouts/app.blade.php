@@ -9,7 +9,9 @@
 <body>
     <nav>
         @auth
+            <a href="{{ route('dashboard') }}">Dashboard</a>
             <a href="{{ route('domains.index') }}">Mes Domaines</a>
+            <a href="{{ route('concepts.archived') }}">Archivés</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit">Déconnexion</button>
