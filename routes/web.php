@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConceptController;
 use App\Http\Controllers\DomainController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('domains', DomainController::class)->except('show');
+
+    Route::get('concepts/archived', [ConceptController::class, 'archived'])->name('concepts.archived');
+    Route::patch('concepts/{concept}/restore', [ConceptController::class, 'restore'])->name('concepts.restore');
+
+    Route::resource('domains.concepts', ConceptController::class);
+
+    Route::patch('concepts/{concept}/status', [ConceptController::class, 'updateStatus'])->name('concepts.updateStatus');
 });
 
 require __DIR__.'/auth.php';
