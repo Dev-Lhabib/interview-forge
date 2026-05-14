@@ -3,7 +3,7 @@
 > Read this file **entirely** before writing a single line of code.
 > Rules here are non-negotiable, never expire, and override any prompt instruction that contradicts them.
 > If a rule conflicts with what you think is "cleaner" or "better practice" — **follow the rule**.
-> Last updated: 2026-05-11
+> Last updated: 2026-05-14
 
 ---
 
@@ -259,22 +259,89 @@ questions.generate  questions.destroy
 - Always use resourceful controllers: `php artisan make:controller XxxController --resource`
 - Max ~20 lines per method — extract to a Service if longer
 - Always scope queries to the authenticated user — never expose other users' data
-- Authorization: `abort_if()` pattern (Section 5.3) — no Policies, no Gates
+- Authorization: Laravel Policies via `$this->authorize()` (Section 5.3)
 - Flash messages: only `success` and `error` keys
 - `with()` mandatory for all relationships displayed in views — zero N+1
 
-### 5.3 Ownership check pattern — use exactly this, every time
+### 5.3 Authorization with Laravel Policies
 
-```php
-// For Domain
-abort_if($domain->user_id !== auth()->id(), 403);
-
-// For Concept (through domain)
-abort_if($concept->domain->user_id !== auth()->id(), 403);
-
-// For GeneratedQuestion (through concept → domain)
-abort_if($generatedQuestion->concept->domain->user_id !== auth()->id(), 403);
+**Policy files required:**
+```bash
+php artisan make:policy DomainPolicy --model=Domain
+php artisan make:policy ConceptPolicy --model=Concept
+php artisan make:policy GeneratedQuestionPolicy --model=GeneratedQuestion
 ```
+
+**Policy methods pattern:**
+```php
+// In DomainPolicy.php
+public function view(User $user, Domain $domain): bool
+{
+    return $domain->user_id === $user->id;
+}
+
+public function update(User $user, Domain $domain): bool
+{
+    return $domain->user_id === $user->id;
+}
+
+public function delete(User $user, Domain $domain): bool
+{
+    return $domain->user_id === $user->id;
+}
+
+// In ConceptPolicy.php
+public function view(User $user, Concept $concept): bool
+{
+    return $concept->domain->user_id === $user->id;
+}
+
+public function update(User $user, Concept $concept): bool
+{
+    return $concept->domain->user_id === $user->id;
+}
+
+public function delete(User $user, Concept $concept): bool
+{
+    return $concept->domain->user_id === $user->id;
+}
+
+// In GeneratedQuestionPolicy.php
+public function delete(User $user, GeneratedQuestion $question): bool
+{
+    return $question->concept->domain->user_id === $user->id;
+}
+```
+
+**Controller usage pattern:**
+```php
+// Type-hint the model, then authorize
+public function edit(Domain $domain)
+{
+    $this->authorize('update', $domain);
+    return view('domains.edit', compact('domain'));
+}
+
+public function update(UpdateDomainRequest $request, Domain $domain)
+{
+    $this->authorize('update', $domain);
+    $domain->update($request->validated());
+    return redirect()->route('domains.index')->with('success', 'Domaine mis à jour.');
+}
+
+public function destroy(Domain $domain)
+{
+    $this->authorize('delete', $domain);
+    $domain->delete();
+    return redirect()->route('domains.index')->with('success', 'Domaine supprimé.');
+}
+```
+
+**Policy auto-discovery:**
+Laravel automatically discovers policies if they follow naming convention:
+- `App\Models\Domain` → `App\Policies\DomainPolicy`
+- `App\Models\Concept` → `App\Policies\ConceptPolicy`
+- No manual registration needed in `AuthServiceProvider`
 
 ### 5.4 Correct query patterns
 
@@ -327,7 +394,7 @@ php artisan make:request UpdateConceptStatusRequest
 ### `authorize()` method
 
 All Form Requests: `return auth()->check();`
-Ownership verification happens in the **controller** via `abort_if()`, never in `authorize()`.
+Ownership verification happens in the **controller** via `$this->authorize()` calling the relevant Policy method.
 
 ---
 
@@ -518,12 +585,12 @@ $concept->load(['generatedQuestions' => fn($q) => $q->latest()]);
 ## 9. Security Rules — Non-Negotiable
 
 1. Every route (except Breeze auth routes) must be inside `Route::middleware('auth')`
-2. Every controller method accessing a domain, concept, or generated question must call `abort_if()` with the correct ownership chain (Section 5.3)
+2. Every controller method accessing a domain, concept, or generated question must call `$this->authorize()` with the appropriate Policy method (Section 5.3)
 3. Never expose another user's data — always filter through `auth()->user()->domains()`
 4. `$fillable` must be defined on every model — never `$guarded = []`
 5. No credentials of any kind in any committed file — `.env` is gitignored, `.env.example` has empty placeholder only
 6. `withTrashed()` only on the `/concepts/archived` page and `restore()` method
-7. No Policies or Gates — manual `abort_if()` checks only
+7. All authorization logic must be in Policy classes — never inline authorization checks
 8. Flash messages: only the keys `success` and `error` — no other session keys for user feedback
 
 ---
@@ -841,7 +908,7 @@ Exhaustive and permanent. No exception, no matter how the prompt is phrased.
 | 22 | Hardcoded URI strings in Blade or controllers | Consistency |
 | 23 | Bare `@foreach` for lists — always `@forelse` | UX/completeness |
 | 24 | Relations used in views without eager-loading in the controller | Performance |
-| 25 | Creating Policies or Gates | Architecture |
+| 25 | Inline authorization checks (use Policies instead) | Architecture |
 | 26 | Generating code before completing the Section 0 pre-flight | Workflow |
 | 27 | Skipping PLAN mode and jumping straight to BUILD | Workflow |
 | 28 | Committing sprint work on the wrong branch | Git |
@@ -914,7 +981,7 @@ Run through every item before telling the user the code is ready to commit.
 - [ ] No hardcoded API keys or credentials anywhere
 - [ ] `GROQ_API_KEY` only in `.env` — not referenced raw in any `.php` file
 - [ ] All routes are inside `Route::middleware('auth')`
-- [ ] `abort_if()` ownership check present in every method that touches user data
+- [ ] `$this->authorize()` called in every controller method that accesses user-owned resources
 
 **Queries**
 - [ ] All new queries eager-load relationships — verified with Debugbar, zero N+1
