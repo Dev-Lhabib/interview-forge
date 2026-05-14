@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreConceptRequest;
 use App\Http\Requests\UpdateConceptRequest;
+use App\Http\Requests\UpdateConceptStatusRequest;
 use App\Models\Concept;
 use Illuminate\Http\Request;
 
@@ -80,12 +81,8 @@ class ConceptController extends Controller
         return redirect()->route('domains.concepts.index', $domain)->with('success', 'Concept supprimé.');
     }
 
-    public function updateStatus(Request $request, Concept $concept)
+    public function updateStatus(UpdateConceptStatusRequest $request, Concept $concept)
     {
-        $request->validate([
-            'status' => 'required|in:to_review,in_progress,mastered',
-        ]);
-
         abort_if($concept->domain->user_id !== auth()->id(), 403);
 
         $concept->update(['status' => $request->status]);

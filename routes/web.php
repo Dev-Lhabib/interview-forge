@@ -18,7 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('domains', DomainController::class)->except('show');
 
     Route::get('concepts/archived', [ConceptController::class, 'archived'])->name('concepts.archived');
-    Route::patch('concepts/{id}/restore', [ConceptController::class, 'restore'])->name('concepts.restore');
+    Route::patch('concepts/{concept}/restore', [ConceptController::class, 'restore'])->name('concepts.restore');
 
     Route::resource('domains.concepts', ConceptController::class);
 
