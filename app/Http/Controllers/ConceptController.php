@@ -6,13 +6,14 @@ use App\Http\Requests\StoreConceptRequest;
 use App\Http\Requests\UpdateConceptRequest;
 use App\Http\Requests\UpdateConceptStatusRequest;
 use App\Models\Concept;
+use App\Models\Domain;
 use Illuminate\Http\Request;
 
 class ConceptController extends Controller
 {
-    public function index(Request $request, $domain)
+    public function index(Request $request, Domain $domain)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
 
         $concepts = $domain->concepts()
             ->with('domain')
@@ -24,16 +25,16 @@ class ConceptController extends Controller
         return view('concepts.index', compact('domain', 'concepts'));
     }
 
-    public function create($domain)
+    public function create(Domain $domain)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
 
         return view('concepts.create', compact('domain'));
     }
 
-    public function store(StoreConceptRequest $request, $domain)
+    public function store(StoreConceptRequest $request, Domain $domain)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
 
         $domain->concepts()->create([
             ...$request->validated(),
@@ -44,9 +45,9 @@ class ConceptController extends Controller
         return redirect()->route('domains.concepts.index', $domain)->with('success', 'Concept créé.');
     }
 
-    public function show($domain, Concept $concept)
+    public function show(Domain $domain, Concept $concept)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
         abort_if($concept->domain->user_id !== auth()->id(), 403);
 
         $concept->load(['generatedQuestions' => fn($q) => $q->latest()]);
@@ -54,17 +55,17 @@ class ConceptController extends Controller
         return view('concepts.show', compact('domain', 'concept'));
     }
 
-    public function edit($domain, Concept $concept)
+    public function edit(Domain $domain, Concept $concept)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
         abort_if($concept->domain->user_id !== auth()->id(), 403);
 
         return view('concepts.edit', compact('domain', 'concept'));
     }
 
-    public function update(UpdateConceptRequest $request, $domain, Concept $concept)
+    public function update(UpdateConceptRequest $request, Domain $domain, Concept $concept)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
         abort_if($concept->domain->user_id !== auth()->id(), 403);
 
         $concept->update($request->validated());
@@ -72,9 +73,9 @@ class ConceptController extends Controller
         return redirect()->route('domains.concepts.show', [$domain, $concept])->with('success', 'Concept mis à jour.');
     }
 
-    public function destroy($domain, Concept $concept)
+    public function destroy(Domain $domain, Concept $concept)
     {
-        $domain = auth()->user()->domains()->findOrFail($domain);
+        abort_if($domain->user_id !== auth()->id(), 403);
         abort_if($concept->domain->user_id !== auth()->id(), 403);
 
         $concept->delete();
