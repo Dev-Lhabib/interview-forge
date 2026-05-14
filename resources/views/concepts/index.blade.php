@@ -11,13 +11,24 @@
     </a>
 @endsection
 
+@push('styles')
+<style>
+select.custom-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+</style>
+@endpush
+
 @section('content')
 <!-- Filters Card -->
 <div class="bg-white rounded-xl shadow-sm p-5 mb-6 border border-gray-100">
     <form method="GET" action="{{ route('domains.concepts.index', $domain) }}" class="flex flex-wrap items-center gap-4">
         <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-gray-700">Filtrer par statut:</label>
-            <select name="status" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+            <select name="status" onchange="this.form.submit()" class="custom-select px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm appearance-none bg-white cursor-pointer">
                 <option value="">Tous</option>
                 <option value="to_review" @selected(request('status') === 'to_review')>À revoir</option>
                 <option value="in_progress" @selected(request('status') === 'in_progress')>En cours</option>
@@ -27,7 +38,7 @@
 
         <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-gray-700">Filtrer par difficulté:</label>
-            <select name="difficulty" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+            <select name="difficulty" onchange="this.form.submit()" class="custom-select px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm appearance-none bg-white cursor-pointer">
                 <option value="">Tous niveaux</option>
                 <option value="junior" @selected(request('difficulty') === 'junior')>Junior</option>
                 <option value="mid" @selected(request('difficulty') === 'mid')>Mid</option>
@@ -68,7 +79,7 @@
                     <form method="POST" action="{{ route('concepts.updateStatus', $concept) }}" class="flex-shrink-0">
                         @csrf
                         @method('PATCH')
-                        <select name="status" onchange="this.form.submit()" class="w-full lg:w-auto px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm hover:bg-gray-50 transition-colors">
+                        <select name="status" onchange="this.form.submit()" class="custom-select w-full lg:w-auto px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm hover:bg-gray-50 transition-colors appearance-none cursor-pointer">
                             <option value="to_review" @selected($concept->status === 'to_review')>À revoir</option>
                             <option value="in_progress" @selected($concept->status === 'in_progress')>En cours</option>
                             <option value="mastered" @selected($concept->status === 'mastered')>Maîtrisé</option>

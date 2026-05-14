@@ -13,7 +13,7 @@ class GeneratedQuestionController extends Controller
     {
         $concept->load('domain');
 
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $concept);
 
         $generation = $groqService->generateInterviewQuestions($concept);
 
@@ -26,7 +26,7 @@ class GeneratedQuestionController extends Controller
 
     public function destroy(GeneratedQuestion $generatedQuestion)
     {
-        abort_if($generatedQuestion->concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('delete', $generatedQuestion);
 
         $generatedQuestion->delete();
 
