@@ -53,6 +53,12 @@
                         <span class="inline-flex items-center px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">
                             {{ $concept->difficultyLabel }}
                         </span>
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-semibold {{ $concept->generated_questions_count > 0 ? 'text-indigo-700 bg-indigo-50' : 'text-gray-500 bg-gray-50' }} rounded-full">
+                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $concept->generated_questions_count > 0 ? $concept->generated_questions_count . ' question' . ($concept->generated_questions_count > 1 ? 's' : '') : 'Aucune question' }}
+                        </span>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">{{ $concept->explanation }}</p>
                 </div>

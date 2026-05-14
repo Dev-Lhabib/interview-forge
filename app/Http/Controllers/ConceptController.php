@@ -16,6 +16,7 @@ class ConceptController extends Controller
 
         $concepts = $domain->concepts()
             ->with('domain')
+            ->withCount('generatedQuestions')
             ->when($request->status, fn($q, $s) => $q->where('status', $s))
             ->when($request->difficulty, fn($q, $d) => $q->where('difficulty', $d))
             ->get();
