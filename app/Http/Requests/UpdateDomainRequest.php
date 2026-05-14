@@ -14,7 +14,12 @@ class UpdateDomainRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'  => ['required', 'string', 'max:255'],
+            'name'  => [
+                'required',
+                'string',
+                'max:255',
+                'unique:domains,name,' . $this->route('domain')->id . ',id,user_id,' . auth()->id(),
+            ],
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
