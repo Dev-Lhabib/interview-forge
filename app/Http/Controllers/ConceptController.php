@@ -33,7 +33,11 @@ class ConceptController extends Controller
     {
         $domain = auth()->user()->domains()->findOrFail($domain);
 
-        $domain->concepts()->create(array_merge($request->validated(), ['status' => 'to_review']));
+        $domain->concepts()->create([
+            ...$request->validated(),
+            'user_id' => auth()->id(),
+            'status' => 'to_review',
+        ]);
 
         return redirect()->route('domains.concepts.index', $domain)->with('success', 'Concept créé.');
     }
@@ -99,9 +103,11 @@ class ConceptController extends Controller
         return view('concepts.archived', compact('concepts'));
     }
 
-    public function restore(Concept $concept)
+    public function restore($id)
     {
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $concept = Concept::onlyTrashed()
+            ->whereHas('domain', fn($q) => $q->where('user_id', auth()->id()))
+            ->findOrFail($id);
 
         $concept->restore();
 

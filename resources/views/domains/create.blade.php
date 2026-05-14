@@ -1,28 +1,48 @@
 @extends('layouts.app')
 
+@section('page-title', 'Nouveau Domaine')
+
 @section('content')
-<h1>Nouveau Domaine</h1>
+<div class="max-w-2xl">
+    <div class="bg-white rounded-xl shadow-md p-8 border border-gray-100">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Créer un nouveau domaine</h2>
+            <p class="text-gray-600">Organisez vos connaissances par domaine technique</p>
+        </div>
 
-<form method="POST" action="{{ route('domains.store') }}">
-    @csrf
+        <form method="POST" action="{{ route('domains.store') }}" class="space-y-6">
+            @csrf
 
-    <div>
-        <label for="name">Nom du domaine</label>
-        <input type="text" name="name" id="name" value="{{ old('name') }}" required>
-        @error('name')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom du domaine</label>
+                <input type="text" name="name" id="name" value="{{ old('name') }}" required 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                @error('name')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="color" class="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
+                <div class="flex items-center space-x-4">
+                    <input type="color" name="color" id="color" value="{{ old('color', '#3B82F6') }}" required 
+                        class="h-12 w-20 rounded-lg border-2 border-gray-300 cursor-pointer">
+                    <span class="text-sm text-gray-500">Choisissez une couleur pour identifier ce domaine</span>
+                </div>
+                @error('color')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="{{ route('domains.index') }}" class="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                    Annuler
+                </a>
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-sm">
+                    Créer le domaine
+                </button>
+            </div>
+        </form>
     </div>
-
-    <div>
-        <label for="color">Couleur</label>
-        <input type="color" name="color" id="color" value="{{ old('color', '#3B82F6') }}" required>
-        @error('color')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
-    </div>
-
-    <button type="submit">Créer</button>
-    <a href="{{ route('domains.index') }}">Annuler</a>
-</form>
+</div>
 @endsection
