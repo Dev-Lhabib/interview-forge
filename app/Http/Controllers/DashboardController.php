@@ -18,6 +18,7 @@ class DashboardController extends Controller
                 'concepts as in_progress_count'  => fn($q) => $q->where('status', 'in_progress'),
                 'concepts as mastered_count'     => fn($q) => $q->where('status', 'mastered'),
             ])
+            ->with(['concepts' => fn($q) => $q->withCount('generatedQuestions')])
             ->get();
 
         $totalConcepts     = $domains->sum('concepts_count');

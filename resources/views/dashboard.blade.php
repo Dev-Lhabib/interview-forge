@@ -159,6 +159,7 @@
                             $pct = $domain->concepts_count > 0
                                 ? round(($domain->mastered_count / $domain->concepts_count) * 100)
                                 : 0;
+                            $questionsCount = $domain->concepts->sum('generated_questions_count');
                         @endphp
                         <div class="group">
                             <div class="flex items-center justify-between mb-2">
@@ -166,7 +167,12 @@
                                     <div class="w-3 h-3 rounded-full" style="background-color: {{ $domain->color }};"></div>
                                     <span class="font-medium text-gray-900">{{ $domain->name }}</span>
                                 </div>
-                                <span class="text-sm text-gray-500">{{ $domain->concepts_count }} concepts</span>
+                                <span class="text-sm text-gray-500">
+                                    {{ $domain->concepts_count }} concepts
+                                    @if($questionsCount > 0)
+                                        <span class="text-emerald-600 font-medium">({{ $questionsCount }} questions)</span>
+                                    @endif
+                                </span>
                             </div>
                             <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
                                 <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500 group-hover:from-indigo-600 group-hover:to-purple-600" style="width: {{ $pct }}%;"></div>
