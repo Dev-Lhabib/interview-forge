@@ -11,7 +11,7 @@ class GroqService
 {
     private string $apiKey;
     private string $endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-    private string $model = 'llama3-8b-8192';
+    private string $model = 'llama-3.1-8b-instant';
 
     public function __construct()
     {
