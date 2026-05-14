@@ -13,7 +13,7 @@ class ConceptController extends Controller
 {
     public function index(Request $request, Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
 
         $concepts = $domain->concepts()
             ->with('domain')
@@ -27,14 +27,14 @@ class ConceptController extends Controller
 
     public function create(Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
 
         return view('concepts.create', compact('domain'));
     }
 
     public function store(StoreConceptRequest $request, Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
 
         $domain->concepts()->create([
             ...$request->validated(),
@@ -47,8 +47,8 @@ class ConceptController extends Controller
 
     public function show(Domain $domain, Concept $concept)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
+        $this->authorize('view', $concept);
 
         $concept->load(['generatedQuestions' => fn($q) => $q->latest()]);
 
@@ -57,16 +57,16 @@ class ConceptController extends Controller
 
     public function edit(Domain $domain, Concept $concept)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
+        $this->authorize('update', $concept);
 
         return view('concepts.edit', compact('domain', 'concept'));
     }
 
     public function update(UpdateConceptRequest $request, Domain $domain, Concept $concept)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
+        $this->authorize('update', $concept);
 
         $concept->update($request->validated());
 
@@ -75,8 +75,8 @@ class ConceptController extends Controller
 
     public function destroy(Domain $domain, Concept $concept)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('view', $domain);
+        $this->authorize('delete', $concept);
 
         $concept->delete();
 
@@ -85,7 +85,7 @@ class ConceptController extends Controller
 
     public function updateStatus(UpdateConceptStatusRequest $request, Concept $concept)
     {
-        abort_if($concept->domain->user_id !== auth()->id(), 403);
+        $this->authorize('update', $concept);
 
         $concept->update(['status' => $request->status]);
 

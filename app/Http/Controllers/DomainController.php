@@ -36,14 +36,14 @@ class DomainController extends Controller
 
     public function edit(Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('update', $domain);
 
         return view('domains.edit', compact('domain'));
     }
 
     public function update(UpdateDomainRequest $request, Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('update', $domain);
 
         $domain->update($request->validated());
 
@@ -52,7 +52,7 @@ class DomainController extends Controller
 
     public function destroy(Domain $domain)
     {
-        abort_if($domain->user_id !== auth()->id(), 403);
+        $this->authorize('delete', $domain);
 
         $domain->delete();
 
